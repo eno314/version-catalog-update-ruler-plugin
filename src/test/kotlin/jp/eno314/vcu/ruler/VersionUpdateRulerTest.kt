@@ -173,7 +173,7 @@ class VersionUpdateRulerTest {
             "1, 2, 2.9, false, false",
         ],
     )
-    fun `shouldUpdate returns false when down gradle`(
+    fun `shouldUpdate returns false when downgrade`(
         candidateMajor: Int,
         candidateMinor: Int?,
         candidatePatch: Double?,
