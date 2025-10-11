@@ -1,13 +1,16 @@
 plugins {
     `kotlin-dsl`
+    `java-gradle-plugin`
+    `maven-publish`
     jacoco
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.detekt)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.gradle.plugin.publish)
 }
 
 group = "jp.eno314.vcu.ruler.plugin"
-version = "1.0.0-SNAPSHOT"
+version = providers.gradleProperty("version").getOrElse("0.0.1-SNAPSHOT")
 
 repositories {
     mavenCentral()
@@ -23,9 +26,16 @@ dependencies {
 }
 
 gradlePlugin {
+    website = "https://github.com/eno314/version-catalog-update-ruler-plugin"
+    vcsUrl = "https://github.com/eno314/version-catalog-update-ruler-plugin.git"
+
     plugins {
         create("versionCatalogUpdateRuler") {
             id = "jp.eno314.version-catalog-update-ruler"
+            displayName = "Version Catalog Update Ruler Plugin"
+            description =
+                "A Gradle plugin that provides a custom version selector for the Version Catalog Update plugin."
+            tags = listOf("version-catalog", "dependency-management", "versioning", "updates")
             implementationClass = "jp.eno314.vcu.ruler.VersionCatalogUpdateRulerPlugin"
         }
     }
@@ -53,4 +63,13 @@ detekt {
             "src/main/kotlin",
         ),
     )
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "myLocalRepo"
+            url = uri(layout.buildDirectory.dir("repo"))
+        }
+    }
 }

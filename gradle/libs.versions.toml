@@ -4,7 +4,8 @@ junit = "5.13.4"
 kotlin = "2.0.21"
 ktlint = "13.1.0"
 mockk = "1.14.5"
-version-catalog-update = "1.0.0"
+version-catalog-update = "1.0.1"
+gradle-plugin-publish = "2.0.0"
 
 [libraries]
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
@@ -17,3 +18,4 @@ version-catalog-update = { module = "nl.littlerobots.version-catalog-update:nl.l
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
