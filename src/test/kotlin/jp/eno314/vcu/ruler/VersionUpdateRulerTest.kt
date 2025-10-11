@@ -2,8 +2,8 @@ package jp.eno314.vcu.ruler
 
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.junit5.MockKExtension
-import org.gradle.internal.impldep.junit.framework.TestCase.assertFalse
-import org.gradle.internal.impldep.junit.framework.TestCase.assertTrue
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
