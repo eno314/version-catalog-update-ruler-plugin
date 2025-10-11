@@ -1,7 +1,6 @@
 package jp.eno314.vcu.ruler
 
 import nl.littlerobots.vcu.plugin.VersionCatalogUpdateExtension
-import nl.littlerobots.vcu.plugin.versionSelector
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
