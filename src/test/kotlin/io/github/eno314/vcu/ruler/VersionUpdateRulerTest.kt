@@ -1,4 +1,4 @@
-package jp.eno314.vcu.ruler
+package io.github.eno314.vcu.ruler
 
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.junit5.MockKExtension
