@@ -1,10 +1,5 @@
 package io.github.eno314.vcu.ruler
 
-import io.github.eno314.vcu.ruler.ArtifactVersion
-import io.github.eno314.vcu.ruler.VersionCatalogUpdateRulerExtension
-import io.github.eno314.vcu.ruler.VersionParser
-import io.github.eno314.vcu.ruler.VersionSelector
-import io.github.eno314.vcu.ruler.VersionUpdateRuler
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
