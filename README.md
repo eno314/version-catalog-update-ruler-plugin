@@ -27,7 +27,7 @@ Add the plugin to your `build.gradle.kts` file.
 ```kotlin
 // build.gradle.kts
 plugins {
-    id("jp.eno314.version-catalog-update-ruler") version "<latest_version>"
+    id("io.github.eno314.version-catalog-update-ruler") version "<latest_version>"
 }
 ```
 

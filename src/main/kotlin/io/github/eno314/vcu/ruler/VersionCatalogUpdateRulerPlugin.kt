@@ -1,4 +1,4 @@
-package jp.eno314.vcu.ruler
+package io.github.eno314.vcu.ruler
 
 import nl.littlerobots.vcu.plugin.VersionCatalogUpdateExtension
 import org.gradle.api.Plugin

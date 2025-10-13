@@ -1,4 +1,4 @@
-package jp.eno314.vcu.ruler
+package io.github.eno314.vcu.ruler
 
 internal class VersionUpdateRuler {
     fun shouldUpdate(

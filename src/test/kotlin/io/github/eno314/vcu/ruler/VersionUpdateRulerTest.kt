@@ -1,5 +1,7 @@
-package jp.eno314.vcu.ruler
+package io.github.eno314.vcu.ruler
 
+import io.github.eno314.vcu.ruler.ArtifactVersion
+import io.github.eno314.vcu.ruler.VersionUpdateRuler
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Assertions.assertFalse

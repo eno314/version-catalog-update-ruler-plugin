@@ -1,4 +1,4 @@
-package jp.eno314.vcu.ruler
+package io.github.eno314.vcu.ruler
 
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
@@ -8,7 +8,7 @@ class VersionCatalogUpdateRulerPluginTest {
     @Test
     fun `plugin is applied correctly`() {
         val project = ProjectBuilder.builder().build()
-        project.pluginManager.apply("jp.eno314.version-catalog-update-ruler")
+        project.pluginManager.apply("io.github.eno314.version-catalog-update-ruler")
 
         assertNotNull(project.plugins.findPlugin("nl.littlerobots.version-catalog-update"))
         assertNotNull(project.extensions.findByName("versionCatalogUpdateRuler"))

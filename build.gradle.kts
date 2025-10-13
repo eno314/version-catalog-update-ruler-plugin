@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.gradle.plugin.publish)
 }
 
-group = "jp.eno314.vcu.ruler.plugin"
+group = "io.github.eno314.vcu.ruler.plugin"
 version = providers.gradleProperty("version").getOrElse("0.0.1-SNAPSHOT")
 
 repositories {
@@ -31,12 +31,12 @@ gradlePlugin {
 
     plugins {
         create("versionCatalogUpdateRuler") {
-            id = "jp.eno314.version-catalog-update-ruler"
+            id = "io.github.eno314.version-catalog-update-ruler"
             displayName = "Version Catalog Update Ruler Plugin"
             description =
                 "A Gradle plugin that provides a custom version selector for the Version Catalog Update plugin."
             tags = listOf("version-catalog", "dependency-management", "versioning", "updates")
-            implementationClass = "jp.eno314.vcu.ruler.VersionCatalogUpdateRulerPlugin"
+            implementationClass = "io.github.eno314.vcu.ruler.VersionCatalogUpdateRulerPlugin"
         }
     }
 }
