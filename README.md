@@ -1,5 +1,8 @@
 # version-catalog-update-ruler-plugin
 
+[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.eno314.version-catalog-update-ruler?label=Gradle%20Plugin%20Portal)](https://plugins.gradle.org/plugin/io.github.eno314.version-catalog-update-ruler)
+[![codecov](https://codecov.io/gh/eno314/version-catalog-update-ruler-plugin/graph/badge.svg?token=OPTMOF14LD)](https://codecov.io/gh/eno314/version-catalog-update-ruler-plugin)
+
 version-catalog-update-ruler-plugin is a Gradle plugin that extends
 [littlerobots/version-catalog-update-plugin](https://github.com/littlerobots/version-catalog-update-plugin)
 with advanced, rule-based controls for your dependency updates. It gives you fine-grained control over which versions
@@ -17,6 +20,8 @@ are suggested, preventing unwanted or breaking changes from being applied automa
     - Provides an option to consider only the version directly associated with an artifact as an update candidate.
 
 ## 🚀 Getting Started
+
+Available on the Gradle Plugin Portal: https://plugins.gradle.org/plugin/io.github.eno314.version-catalog-update-ruler
 
 To use this plugin, apply it to your project's build script.
 
