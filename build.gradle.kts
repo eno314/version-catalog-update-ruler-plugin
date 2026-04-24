@@ -54,7 +54,7 @@ tasks.jacocoTestReport {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
 }
 
 detekt {
