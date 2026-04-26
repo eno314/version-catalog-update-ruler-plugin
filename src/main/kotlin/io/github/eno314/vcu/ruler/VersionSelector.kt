@@ -20,41 +20,56 @@ internal class VersionSelector(
             candidate.currentVersion,
         )
 
-        return isSelectableVersion(candidate) && isUpdatableVersion(candidate)
+        val rule = findRule(candidate)
+        return isSelectableVersion(candidate, rule) && isUpdatableVersion(candidate, rule)
     }
 
-    private fun isSelectableVersion(moduleVersionCandidate: ModuleVersionCandidate): Boolean {
-        if (!extension.onlyStable.get() ||
-            !moduleVersionCandidate.candidate.version.matches(extension.unStableVersionRegex.get())
+    private fun findRule(candidate: ModuleVersionCandidate): UpdateRule {
+        val libraryName = "${candidate.candidate.group}:${candidate.candidate.module}"
+        return extension.libraryRules.findByName(libraryName) ?: extension
+    }
+
+    private fun isSelectableVersion(
+        moduleVersionCandidate: ModuleVersionCandidate,
+        rule: UpdateRule,
+    ): Boolean {
+        val onlyStable = rule.onlyStable.get()
+        val unStableVersionRegex = rule.unStableVersionRegex.get()
+        if (!onlyStable ||
+            !moduleVersionCandidate.candidate.version.matches(unStableVersionRegex)
         ) {
             return true
         }
         logger.info(
             "{} Skip update because version is not stable. onlyStable:{}, unStableVersionRegex:{}",
             tag,
-            extension.onlyStable.get(),
-            extension.unStableVersionRegex.get(),
+            onlyStable,
+            unStableVersionRegex,
         )
         return false
     }
 
-    private fun isUpdatableVersion(moduleVersionCandidate: ModuleVersionCandidate): Boolean {
+    private fun isUpdatableVersion(
+        moduleVersionCandidate: ModuleVersionCandidate,
+        rule: UpdateRule,
+    ): Boolean {
         val currentVersion = versionParser.parse(moduleVersionCandidate.currentVersion)
         val candidateVersion = versionParser.parse(moduleVersionCandidate.candidate.version)
+        val onlyArtifactVersion = rule.onlyArtifactVersion.get()
         if (currentVersion == null || candidateVersion == null) {
             logger.info(
                 "{} Failed version parse to ArtifactVersion. so returns !onlyArtifactVersion setting. : {}",
                 tag,
-                !extension.onlyArtifactVersion.get(),
+                !onlyArtifactVersion,
             )
-            return !extension.onlyArtifactVersion.get()
+            return !onlyArtifactVersion
         }
 
         return versionUpdateRuler.shouldUpdate(
             currentVersion,
             candidateVersion,
-            extension.pinMajorVersion.get(),
-            extension.pinMinorVersion.get(),
+            rule.pinMajorVersion.get(),
+            rule.pinMinorVersion.get(),
         )
     }
 }
