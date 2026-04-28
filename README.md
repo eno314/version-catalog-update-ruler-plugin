@@ -58,6 +58,17 @@ versionCatalogUpdateRuler {
 
     // Only consider the artifact's own version for updates.
     onlyArtifactVersion.set(true)
+
+    // (Optional) Configure rules for specific libraries.
+    // Library-specific settings override the global settings.
+    library("com.google.guava:guava") {
+        // For Guava, we want to allow updates to unstable versions like beta.
+        onlyStable.set(true)
+        unStableVersionRegex.set(Regex(".*(alpha|rc|preview|snapshot|test).*", RegexOption.IGNORE_CASE))
+
+        // And we want to allow minor updates for this specific library.
+        pinMinorVersion.set(false)
+    }
 }
 ```
 
