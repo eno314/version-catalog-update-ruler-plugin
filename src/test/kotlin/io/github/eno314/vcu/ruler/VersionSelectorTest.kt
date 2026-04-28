@@ -6,6 +6,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import nl.littlerobots.vcu.plugin.resolver.ModuleVersionCandidate
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.logging.Logger
@@ -54,18 +55,22 @@ internal class VersionSelectorTest {
 
     @BeforeEach
     fun setup() {
-        every { extension.onlyStable } returns mockk(relaxed = true)
-        every { extension.unStableVersionRegex } returns mockk(relaxed = true)
-        every { extension.onlyArtifactVersion } returns mockk(relaxed = true)
-        every { extension.pinMajorVersion } returns mockk()
-        every { extension.pinMajorVersion.get() } returns true
-        every { extension.pinMinorVersion } returns mockk()
+        every { extension.onlyStable.get() } returns false
+        every { extension.unStableVersionRegex.get() } returns Regex(".*")
+        every { extension.onlyArtifactVersion.get() } returns false
+        every { extension.pinMajorVersion.get() } returns false
         every { extension.pinMinorVersion.get() } returns false
+
+        val libraryRules = mockk<NamedDomainObjectContainer<LibraryUpdateRule>>()
+        every { extension.libraryRules } returns libraryRules
+        every { libraryRules.findByName(any<String>()) } returns null
     }
 
     @Test
     fun `select returns true when isSelectableVersion(onlyStable is false) and isUpdatableVersion(onlyArtifactVersion is false)`() {
         every { extension.onlyStable.get() } returns false
+        every { extension.pinMajorVersion.get() } returns true
+        every { extension.pinMinorVersion.get() } returns false
         every { versionParser.parse(candidate.currentVersion) } returns currentVersion
         every { versionParser.parse(candidate.candidate.version) } returns candidateVersion
         every {
@@ -135,5 +140,37 @@ internal class VersionSelectorTest {
         val actual = versionSelector.select(candidate)
 
         assertFalse(actual)
+    }
+
+    @Test
+    fun `select uses library specific rule when available`() {
+        val libraryRule = mockk<LibraryUpdateRule>()
+        every { extension.libraryRules.findByName("com.example:test-module") } returns libraryRule
+
+        every { libraryRule.onlyStable.get() } returns true
+        every { libraryRule.unStableVersionRegex.get() } returns Regex(".*(beta).*")
+        every { libraryRule.pinMajorVersion.get() } returns false
+        every { libraryRule.pinMinorVersion.get() } returns false
+        every { libraryRule.onlyArtifactVersion.get() } returns false
+
+        every { versionParser.parse(candidate.currentVersion) } returns currentVersion
+        every { versionParser.parse(candidate.candidate.version) } returns candidateVersion
+        every {
+            versionUpdateRuler.shouldUpdate(
+                currentVersion,
+                candidateVersion,
+                pinMajorVersion = false,
+                pinMinorVersion = false,
+            )
+        } returns true
+
+        // candidate version is "1.1.1-test"
+        // libraryRule.unStableVersionRegex is ".*(beta).*"
+        // "1.1.1-test" does not match ".*(beta).*"
+        // so it should be considered stable for this library rule
+
+        val actual = versionSelector.select(candidate)
+
+        assertTrue(actual)
     }
 }

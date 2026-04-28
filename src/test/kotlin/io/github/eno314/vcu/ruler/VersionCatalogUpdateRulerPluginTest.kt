@@ -11,6 +11,23 @@ class VersionCatalogUpdateRulerPluginTest {
         project.pluginManager.apply("io.github.eno314.version-catalog-update-ruler")
 
         assertNotNull(project.plugins.findPlugin("nl.littlerobots.version-catalog-update"))
-        assertNotNull(project.extensions.findByName("versionCatalogUpdateRuler"))
+        val extension = project.extensions.findByName("versionCatalogUpdateRuler") as? VersionCatalogUpdateRulerExtension
+        assertNotNull(extension)
+
+        extension?.apply {
+            onlyStable.set(true)
+            library("com.example:test") {
+                onlyStable.set(false)
+            }
+        }
+
+        val libraryRule = extension?.libraryRules?.findByName("com.example:test")
+        assertNotNull(libraryRule)
+        assert(libraryRule?.onlyStable?.get() == false)
+        // Check fallback to global
+        assert(libraryRule?.pinMajorVersion?.get() == false)
+
+        extension?.pinMajorVersion?.set(true)
+        assert(libraryRule?.pinMajorVersion?.get() == true)
     }
 }

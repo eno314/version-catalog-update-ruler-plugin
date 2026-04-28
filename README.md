@@ -58,6 +58,17 @@ versionCatalogUpdateRuler {
 
     // Only consider the artifact's own version for updates.
     onlyArtifactVersion.set(true)
+
+    // (Optional) Configure rules for specific libraries.
+    // Library-specific settings override the global settings.
+    library("com.google.guava:guava") {
+        // For Guava, we want to allow updates to unstable versions like beta.
+        onlyStable.set(true)
+        unStableVersionRegex.set(Regex(".*(alpha|rc|preview|snapshot|test).*", RegexOption.IGNORE_CASE))
+
+        // And we want to allow minor updates for this specific library.
+        pinMinorVersion.set(false)
+    }
 }
 ```
 
@@ -75,6 +86,22 @@ The following properties are available in the `versionCatalogUpdateRuler` block:
 | `onlyArtifactVersion`  | `Boolean` | `false`                                            | If `true`, the plugin will only consider the version directly associated with an artifact as an update candidate.      |
 | `pinMajorVersion`      | `Boolean` | `false`                                            | If `true`, the plugin will prevent updates where the major version number increases (e.g., `1.5.0` -> `2.0.0`).        |
 | `pinMinorVersion`      | `Boolean` | `false`                                            | If `true`, the plugin will prevent updates where the minor version number increases (e.g., `1.2.5` -> `1.3.0`).        |
+
+### `library` block
+
+You can define rules for specific libraries using the `library` block. The name should be in the format `group:module`.
+
+```kotlin
+library("group:module") {
+    onlyStable.set(true)
+    unStableVersionRegex.set(Regex(".*"))
+    onlyArtifactVersion.set(true)
+    pinMajorVersion.set(true)
+    pinMinorVersion.set(true)
+}
+```
+
+Properties in the `library` block default to the values set in the global `versionCatalogUpdateRuler` extension.
 
 ## 🤝 Contributing
 
