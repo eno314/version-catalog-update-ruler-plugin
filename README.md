@@ -87,6 +87,22 @@ The following properties are available in the `versionCatalogUpdateRuler` block:
 | `pinMajorVersion`      | `Boolean` | `false`                                            | If `true`, the plugin will prevent updates where the major version number increases (e.g., `1.5.0` -> `2.0.0`).        |
 | `pinMinorVersion`      | `Boolean` | `false`                                            | If `true`, the plugin will prevent updates where the minor version number increases (e.g., `1.2.5` -> `1.3.0`).        |
 
+### `library` block
+
+You can define rules for specific libraries using the `library` block. The name should be in the format `group:module`.
+
+```kotlin
+library("group:module") {
+    onlyStable.set(true)
+    unStableVersionRegex.set(Regex(".*"))
+    onlyArtifactVersion.set(true)
+    pinMajorVersion.set(true)
+    pinMinorVersion.set(true)
+}
+```
+
+Properties in the `library` block default to the values set in the global `versionCatalogUpdateRuler` extension.
+
 ## 🤝 Contributing
 
 Contributions are welcome! If you have a suggestion or find a bug, please feel free to open an issue or submit a pull
