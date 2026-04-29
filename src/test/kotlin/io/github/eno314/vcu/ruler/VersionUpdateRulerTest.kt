@@ -6,189 +6,191 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.CsvSource
 
 @ExtendWith(MockKExtension::class)
 class VersionUpdateRulerTest {
     @InjectMockKs
     private lateinit var versionUpdateRuler: VersionUpdateRuler
 
-    private val currentVersion = ArtifactVersion(1, 2, 3.0)
+    private val currentVersion = ArtifactVersion(1, 2, listOf(3))
 
-    @ParameterizedTest
-    @CsvSource(
-        value = [
-            "2, 0, 3.1, false",
-            "3, 3, 4.0, false",
-            "2, 3,    , true",
-            "3,  ,    , true",
-        ],
-    )
-    fun `shouldUpdate returns true when allowedMajor and majorUpdate`(
-        candidateMajor: Int,
-        candidateMinor: Int?,
-        candidatePatch: Double?,
-        pinMinorVersion: Boolean,
-    ) {
-        // Given
-        val candidateVersion = ArtifactVersion(candidateMajor, candidateMinor, candidatePatch)
-        val pinMajorVersion = false
+    // --- shouldUpdate returns true when allowedMajor and majorUpdate ---
 
-        // When
-        val result = versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, pinMajorVersion, pinMinorVersion)
-
-        // Then
-        assertTrue(result)
+    @Test
+    fun `shouldUpdate returns true when allowedMajor and majorUpdate - with patch and pinMinor false`() {
+        val candidateVersion = ArtifactVersion(2, 0, listOf(3, 1))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
     }
 
-    @ParameterizedTest
-    @CsvSource(
-        value = [
-            "2, 0, 3.1, false",
-            "3, 3, 4.0, false",
-            "2, 3,    , true",
-            "3,  ,    , true",
-        ],
-    )
-    fun `shouldUpdate returns false when pinMajor and majorUpdate`(
-        candidateMajor: Int,
-        candidateMinor: Int?,
-        candidatePatch: Double?,
-        pinMinorVersion: Boolean,
-    ) {
-        // Given
-        val candidateVersion = ArtifactVersion(candidateMajor, candidateMinor, candidatePatch)
-        val pinMajorVersion = true
-
-        // When
-        val result = versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, pinMajorVersion, pinMinorVersion)
-
-        // Then
-        assertFalse(result)
+    @Test
+    fun `shouldUpdate returns true when allowedMajor and majorUpdate - with higher patch and pinMinor false`() {
+        val candidateVersion = ArtifactVersion(3, 3, listOf(4))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
     }
 
-    @ParameterizedTest
-    @CsvSource(
-        value = [
-            "3, 3.1, false",
-            "4, 4.0, false",
-            "3,    , true",
-        ],
-    )
-    fun `shouldUpdate returns true when allowedMinor and minorUpdate`(
-        candidateMinor: Int,
-        candidatePatch: Double?,
-        pinMajorVersion: Boolean,
-    ) {
-        // Given
-        val candidateVersion = ArtifactVersion(1, candidateMinor, candidatePatch)
-        val pinMinorVersion = false
-
-        // When
-        val result = versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, pinMajorVersion, pinMinorVersion)
-
-        // Then
-        assertTrue(result)
+    @Test
+    fun `shouldUpdate returns true when allowedMajor and majorUpdate - no patch and pinMinor true`() {
+        val candidateVersion = ArtifactVersion(2, 3, null)
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, true))
     }
 
-    @ParameterizedTest
-    @CsvSource(
-        value = [
-            "3, 3.1, false",
-            "4, 4.0, false",
-            "4,    , true",
-        ],
-    )
-    fun `shouldUpdate returns false when pinMinor and minorUpdate`(
-        candidateMinor: Int,
-        candidatePatch: Double?,
-        pinMajorVersion: Boolean,
-    ) {
-        // Given
-        val candidateVersion = ArtifactVersion(1, candidateMinor, candidatePatch)
-        val pinMinorVersion = true
-
-        // When
-        val result = versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, pinMajorVersion, pinMinorVersion)
-
-        // Then
-        assertFalse(result)
+    @Test
+    fun `shouldUpdate returns true when allowedMajor and majorUpdate - no minor no patch and pinMinor true`() {
+        val candidateVersion = ArtifactVersion(3, null, null)
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, true))
     }
 
-    @ParameterizedTest
-    @CsvSource(
-        value = [
-            "3.1, true, true",
-            "4.0, true, false",
-            "3.01, false, true",
-            "10.0, false, false",
-        ],
-    )
-    fun `shouldUpdate returns true when patchUpdate`(
-        candidatePatch: Double,
-        pinMajorVersion: Boolean,
-        pinMinorVersion: Boolean,
-    ) {
-        // Given
-        val candidateVersion = ArtifactVersion(1, 2, candidatePatch)
+    // --- shouldUpdate returns false when pinMajor and majorUpdate ---
 
-        // When
-        val result = versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, pinMajorVersion, pinMinorVersion)
-
-        // Then
-        assertTrue(result)
+    @Test
+    fun `shouldUpdate returns false when pinMajor and majorUpdate - with patch and pinMinor false`() {
+        val candidateVersion = ArtifactVersion(2, 0, listOf(3, 1))
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, false))
     }
 
-    @ParameterizedTest
-    @CsvSource(
-        value = [
-            "true, true",
-            "true, false",
-            "false, true",
-            "false, false",
-        ],
-    )
-    fun `shouldUpdate returns false when same version`(
-        pinMajorVersion: Boolean,
-        pinMinorVersion: Boolean,
-    ) {
-        // Given
-        val candidateVersion = ArtifactVersion(1, 2, 3.0)
-
-        // When
-        val result = versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, pinMajorVersion, pinMinorVersion)
-
-        // Then
-        assertFalse(result)
+    @Test
+    fun `shouldUpdate returns false when pinMajor and majorUpdate - with higher patch and pinMinor false`() {
+        val candidateVersion = ArtifactVersion(3, 3, listOf(4))
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, false))
     }
 
-    @ParameterizedTest
-    @CsvSource(
-        value = [
-            "0,  , , true, true",
-            "1,  , , true, false",
-            "1, 1, , false, true",
-            "1, 2, , false, false",
-            "1, 2, 2.9, false, false",
-        ],
-    )
-    fun `shouldUpdate returns false when downgrade`(
-        candidateMajor: Int,
-        candidateMinor: Int?,
-        candidatePatch: Double?,
-        pinMajorVersion: Boolean,
-        pinMinorVersion: Boolean,
-    ) {
-        // Given
-        val candidateVersion = ArtifactVersion(candidateMajor, candidateMinor, candidatePatch)
-
-        // When
-        val result = versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, pinMajorVersion, pinMinorVersion)
-
-        // Then
-        assertFalse(result)
+    @Test
+    fun `shouldUpdate returns false when pinMajor and majorUpdate - no patch and pinMinor true`() {
+        val candidateVersion = ArtifactVersion(2, 3, null)
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, true))
     }
+
+    @Test
+    fun `shouldUpdate returns false when pinMajor and majorUpdate - no minor no patch and pinMinor true`() {
+        val candidateVersion = ArtifactVersion(3, null, null)
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, true))
+    }
+
+    // --- shouldUpdate returns true when allowedMinor and minorUpdate ---
+
+    @Test
+    fun `shouldUpdate returns true when allowedMinor and minorUpdate - with patch and pinMajor false`() {
+        val candidateVersion = ArtifactVersion(1, 3, listOf(3, 1))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
+    }
+
+    @Test
+    fun `shouldUpdate returns true when allowedMinor and minorUpdate - with higher patch and pinMajor false`() {
+        val candidateVersion = ArtifactVersion(1, 4, listOf(4))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
+    }
+
+    @Test
+    fun `shouldUpdate returns true when allowedMinor and minorUpdate - no patch and pinMajor true`() {
+        val candidateVersion = ArtifactVersion(1, 3, null)
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, false))
+    }
+
+    // --- shouldUpdate returns false when pinMinor and minorUpdate ---
+
+    @Test
+    fun `shouldUpdate returns false when pinMinor and minorUpdate - with patch and pinMajor false`() {
+        val candidateVersion = ArtifactVersion(1, 3, listOf(3, 1))
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, true))
+    }
+
+    @Test
+    fun `shouldUpdate returns false when pinMinor and minorUpdate - with higher patch and pinMajor false`() {
+        val candidateVersion = ArtifactVersion(1, 4, listOf(4))
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, true))
+    }
+
+    @Test
+    fun `shouldUpdate returns false when pinMinor and minorUpdate - no patch and pinMajor true`() {
+        val candidateVersion = ArtifactVersion(1, 4, null)
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, true))
+    }
+
+    // --- shouldUpdate returns true when patchUpdate ---
+
+    @Test
+    fun `shouldUpdate returns true when patchUpdate - patch 3_1 with both pinned`() {
+        val candidateVersion = ArtifactVersion(1, 2, listOf(3, 1))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, true))
+    }
+
+    @Test
+    fun `shouldUpdate returns true when patchUpdate - patch 4 with pinMajor only`() {
+        val candidateVersion = ArtifactVersion(1, 2, listOf(4))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, false))
+    }
+
+    @Test
+    fun `shouldUpdate returns true when patchUpdate - patch 3_0_1 with pinMinor only`() {
+        val candidateVersion = ArtifactVersion(1, 2, listOf(3, 0, 1))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, true))
+    }
+
+    @Test
+    fun `shouldUpdate returns true when patchUpdate - patch 10 with nothing pinned`() {
+        val candidateVersion = ArtifactVersion(1, 2, listOf(10))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
+    }
+
+    // --- shouldUpdate returns false when same version ---
+
+    @Test
+    fun `shouldUpdate returns false when same version - both pinned`() {
+        val candidateVersion = ArtifactVersion(1, 2, listOf(3))
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, true))
+    }
+
+    @Test
+    fun `shouldUpdate returns false when same version - pinMajor only`() {
+        val candidateVersion = ArtifactVersion(1, 2, listOf(3))
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, false))
+    }
+
+    @Test
+    fun `shouldUpdate returns false when same version - pinMinor only`() {
+        val candidateVersion = ArtifactVersion(1, 2, listOf(3))
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, true))
+    }
+
+    @Test
+    fun `shouldUpdate returns false when same version - nothing pinned`() {
+        val candidateVersion = ArtifactVersion(1, 2, listOf(3))
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
+    }
+
+    // --- shouldUpdate returns false when downgrade ---
+
+    @Test
+    fun `shouldUpdate returns false when downgrade - lower major with both pinned`() {
+        val candidateVersion = ArtifactVersion(0, null, null)
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, true))
+    }
+
+    @Test
+    fun `shouldUpdate returns false when downgrade - same major no minor with pinMajor only`() {
+        val candidateVersion = ArtifactVersion(1, null, null)
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, false))
+    }
+
+    @Test
+    fun `shouldUpdate returns false when downgrade - lower minor with pinMinor only`() {
+        val candidateVersion = ArtifactVersion(1, 1, null)
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, true))
+    }
+
+    @Test
+    fun `shouldUpdate returns false when downgrade - same minor no patch with nothing pinned`() {
+        val candidateVersion = ArtifactVersion(1, 2, null)
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
+    }
+
+    @Test
+    fun `shouldUpdate returns false when downgrade - lower patch with nothing pinned`() {
+        val candidateVersion = ArtifactVersion(1, 2, listOf(2, 9))
+        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
+    }
+
+    // --- only major version ---
 
     @Test
     fun `shouldUpdate returns false when only major version and pinMajorVersion`() {
@@ -200,5 +202,35 @@ class VersionUpdateRulerTest {
 
         // Then
         assertFalse(result)
+    }
+
+    // --- Bug fix: patch list comparison ---
+
+    @Test
+    fun `shouldUpdate correctly compares 1_2_3_10 as newer than 1_2_3_4`() {
+        val current = ArtifactVersion(1, 2, listOf(3, 4))
+        val candidate = ArtifactVersion(1, 2, listOf(3, 10))
+        assertTrue(versionUpdateRuler.shouldUpdate(current, candidate, true, true))
+    }
+
+    @Test
+    fun `shouldUpdate correctly compares 1_2_3_4 as older than 1_2_3_10`() {
+        val current = ArtifactVersion(1, 2, listOf(3, 10))
+        val candidate = ArtifactVersion(1, 2, listOf(3, 4))
+        assertFalse(versionUpdateRuler.shouldUpdate(current, candidate, true, true))
+    }
+
+    @Test
+    fun `shouldUpdate correctly compares patch with different lengths - 3 vs 3_1`() {
+        val current = ArtifactVersion(1, 2, listOf(3))
+        val candidate = ArtifactVersion(1, 2, listOf(3, 1))
+        assertTrue(versionUpdateRuler.shouldUpdate(current, candidate, true, true))
+    }
+
+    @Test
+    fun `shouldUpdate correctly compares patch with different lengths - 3_1 vs 3`() {
+        val current = ArtifactVersion(1, 2, listOf(3, 1))
+        val candidate = ArtifactVersion(1, 2, listOf(3))
+        assertFalse(versionUpdateRuler.shouldUpdate(current, candidate, true, true))
     }
 }

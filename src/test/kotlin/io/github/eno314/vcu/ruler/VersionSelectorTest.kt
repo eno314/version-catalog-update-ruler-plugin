@@ -50,8 +50,8 @@ internal class VersionSelectorTest {
                 },
         )
 
-    private val currentVersion = ArtifactVersion(1, 0, 0.0)
-    private val candidateVersion = ArtifactVersion(1, 1, 0.0)
+    private val currentVersion = ArtifactVersion(1, 0, listOf(0))
+    private val candidateVersion = ArtifactVersion(1, 1, listOf(0))
 
     @BeforeEach
     fun setup() {
