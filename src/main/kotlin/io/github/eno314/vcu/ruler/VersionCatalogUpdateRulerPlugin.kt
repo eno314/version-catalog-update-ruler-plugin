@@ -12,16 +12,17 @@ class VersionCatalogUpdateRulerPlugin : Plugin<Project> {
                 VersionCatalogUpdateRulerExtension::class.java,
             )
 
-        project.plugins.apply("nl.littlerobots.version-catalog-update")
+        project.pluginManager.apply("nl.littlerobots.version-catalog-update")
 
-        val baseExtension = project.extensions.getByType(VersionCatalogUpdateExtension::class.java)
-        baseExtension.versionSelector(
-            VersionSelector(
-                extension,
-                VersionParser(),
-                VersionUpdateRuler(),
-                project.logger,
-            ),
-        )
+        project.extensions.configure(VersionCatalogUpdateExtension::class.java) {
+            versionSelector(
+                VersionSelector(
+                    extension,
+                    VersionParser(),
+                    VersionUpdateRuler(),
+                    project.logger,
+                ),
+            )
+        }
     }
 }

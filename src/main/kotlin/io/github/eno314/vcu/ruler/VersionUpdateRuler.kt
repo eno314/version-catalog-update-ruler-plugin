@@ -36,6 +36,23 @@ internal class VersionUpdateRuler {
         }
         return currentVersion.major == candidateVersion.major &&
             currentVersion.minor == candidateVersion.minor &&
-            currentVersion.patch < candidateVersion.patch
+            comparePatchLists(currentVersion.patch, candidateVersion.patch) < 0
+    }
+
+    /**
+     * Compares two patch version lists element by element.
+     * Missing trailing elements are treated as 0.
+     * Returns negative if current < candidate, positive if current > candidate, 0 if equal.
+     */
+    private fun comparePatchLists(
+        current: List<Int>,
+        candidate: List<Int>,
+    ): Int {
+        val maxLen = maxOf(current.size, candidate.size)
+        for (i in 0 until maxLen) {
+            val diff = current.getOrElse(i) { 0 } - candidate.getOrElse(i) { 0 }
+            if (diff != 0) return diff
+        }
+        return 0
     }
 }
