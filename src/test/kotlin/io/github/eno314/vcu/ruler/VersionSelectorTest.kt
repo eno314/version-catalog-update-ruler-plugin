@@ -28,7 +28,7 @@ internal class VersionSelectorTest {
     private lateinit var versionParser: VersionParser
 
     @MockK(relaxed = true)
-    private lateinit var versionUpdateRuler: VersionUpdateRuler
+    private lateinit var candidateValidator: VersionCandidateValidator
 
     @MockK(relaxed = true)
     private lateinit var logger: Logger
@@ -74,7 +74,7 @@ internal class VersionSelectorTest {
         every { versionParser.parse(candidate.currentVersion) } returns currentVersion
         every { versionParser.parse(candidate.candidate.version) } returns candidateVersion
         every {
-            versionUpdateRuler.shouldUpdate(
+            candidateValidator.isValidCandidate(
                 currentVersion,
                 candidateVersion,
                 pinMajorVersion = true,
@@ -88,7 +88,7 @@ internal class VersionSelectorTest {
     }
 
     @Test
-    fun `select returns true when isSelectableVersion(candidate is stable version) and isUpdatableVersion(shouldUpdate is true)`() {
+    fun `select returns true when isSelectableVersion(candidate is stable version) and isUpdatableVersion(isValidCandidate is true)`() {
         every { extension.onlyStable.get() } returns true
         every { extension.unStableVersionRegex.get() } returns Regex(".*(alpha|beta|rc).*")
         every { versionParser.parse(candidate.currentVersion) } returns null
@@ -123,13 +123,13 @@ internal class VersionSelectorTest {
     }
 
     @Test
-    fun `select returns false when isUpdatableVersion is false(shouldUpdate is false)`() {
+    fun `select returns false when isUpdatableVersion is false(isValidCandidate is false)`() {
         every { extension.onlyStable.get() } returns true
         every { extension.unStableVersionRegex.get() } returns Regex(".*(alpha|beta|rc).*")
         every { versionParser.parse(candidate.currentVersion) } returns currentVersion
         every { versionParser.parse(candidate.candidate.version) } returns candidateVersion
         every {
-            versionUpdateRuler.shouldUpdate(
+            candidateValidator.isValidCandidate(
                 currentVersion,
                 candidateVersion,
                 pinMajorVersion = true,
@@ -156,7 +156,7 @@ internal class VersionSelectorTest {
         every { versionParser.parse(candidate.currentVersion) } returns currentVersion
         every { versionParser.parse(candidate.candidate.version) } returns candidateVersion
         every {
-            versionUpdateRuler.shouldUpdate(
+            candidateValidator.isValidCandidate(
                 currentVersion,
                 candidateVersion,
                 pinMajorVersion = false,
