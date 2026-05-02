@@ -132,62 +132,62 @@ class VersionUpdateRulerTest {
         assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
     }
 
-    // --- shouldUpdate returns false when same version ---
+    // --- shouldUpdate returns true when same version (allowed to prevent "could not be resolved") ---
 
     @Test
-    fun `shouldUpdate returns false when same version - both pinned`() {
+    fun `shouldUpdate returns true when same version - both pinned`() {
         val candidateVersion = ArtifactVersion(1, 2, listOf(3))
-        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, true))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, true))
     }
 
     @Test
-    fun `shouldUpdate returns false when same version - pinMajor only`() {
+    fun `shouldUpdate returns true when same version - pinMajor only`() {
         val candidateVersion = ArtifactVersion(1, 2, listOf(3))
-        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, false))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, false))
     }
 
     @Test
-    fun `shouldUpdate returns false when same version - pinMinor only`() {
+    fun `shouldUpdate returns true when same version - pinMinor only`() {
         val candidateVersion = ArtifactVersion(1, 2, listOf(3))
-        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, true))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, true))
     }
 
     @Test
-    fun `shouldUpdate returns false when same version - nothing pinned`() {
+    fun `shouldUpdate returns true when same version - nothing pinned`() {
         val candidateVersion = ArtifactVersion(1, 2, listOf(3))
-        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
     }
 
-    // --- shouldUpdate returns false when downgrade ---
+    // --- shouldUpdate returns true when downgrade (allowed to prevent "could not be resolved") ---
 
     @Test
-    fun `shouldUpdate returns false when downgrade - lower major with both pinned`() {
+    fun `shouldUpdate returns true when downgrade - lower major with both pinned`() {
         val candidateVersion = ArtifactVersion(0, null, null)
-        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, true))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, true))
     }
 
     @Test
-    fun `shouldUpdate returns false when downgrade - same major no minor with pinMajor only`() {
+    fun `shouldUpdate returns true when downgrade - same major no minor with pinMajor only`() {
         val candidateVersion = ArtifactVersion(1, null, null)
-        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, false))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, true, false))
     }
 
     @Test
-    fun `shouldUpdate returns false when downgrade - lower minor with pinMinor only`() {
+    fun `shouldUpdate returns true when downgrade - lower minor with pinMinor only`() {
         val candidateVersion = ArtifactVersion(1, 1, null)
-        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, true))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, true))
     }
 
     @Test
-    fun `shouldUpdate returns false when downgrade - same minor no patch with nothing pinned`() {
+    fun `shouldUpdate returns true when downgrade - same minor no patch with nothing pinned`() {
         val candidateVersion = ArtifactVersion(1, 2, null)
-        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
     }
 
     @Test
-    fun `shouldUpdate returns false when downgrade - lower patch with nothing pinned`() {
+    fun `shouldUpdate returns true when downgrade - lower patch with nothing pinned`() {
         val candidateVersion = ArtifactVersion(1, 2, listOf(2, 9))
-        assertFalse(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
+        assertTrue(versionUpdateRuler.shouldUpdate(currentVersion, candidateVersion, false, false))
     }
 
     // --- only major version ---
@@ -217,7 +217,8 @@ class VersionUpdateRulerTest {
     fun `shouldUpdate correctly compares 1_2_3_4 as older than 1_2_3_10`() {
         val current = ArtifactVersion(1, 2, listOf(3, 10))
         val candidate = ArtifactVersion(1, 2, listOf(3, 4))
-        assertFalse(versionUpdateRuler.shouldUpdate(current, candidate, true, true))
+        // candidate is older than current → allowed (isOlderOrEqual returns true)
+        assertTrue(versionUpdateRuler.shouldUpdate(current, candidate, true, true))
     }
 
     @Test
@@ -231,6 +232,7 @@ class VersionUpdateRulerTest {
     fun `shouldUpdate correctly compares patch with different lengths - 3_1 vs 3`() {
         val current = ArtifactVersion(1, 2, listOf(3, 1))
         val candidate = ArtifactVersion(1, 2, listOf(3))
-        assertFalse(versionUpdateRuler.shouldUpdate(current, candidate, true, true))
+        // candidate is older than current → allowed (isOlderOrEqual returns true)
+        assertTrue(versionUpdateRuler.shouldUpdate(current, candidate, true, true))
     }
 }

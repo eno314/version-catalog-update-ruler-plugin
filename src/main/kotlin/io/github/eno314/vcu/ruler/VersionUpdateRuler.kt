@@ -6,53 +6,49 @@ internal class VersionUpdateRuler {
         candidateVersion: ArtifactVersion,
         pinMajorVersion: Boolean,
         pinMinorVersion: Boolean,
-    ): Boolean =
-        (!pinMajorVersion && isMajorUpdate(currentVersion, candidateVersion)) ||
-            (!pinMinorVersion && isMinorUpdate(currentVersion, candidateVersion)) ||
-            isPatchUpdate(currentVersion, candidateVersion)
-
-    private fun isMajorUpdate(
-        currentVersion: ArtifactVersion,
-        candidateVersion: ArtifactVersion,
-    ): Boolean = currentVersion.major < candidateVersion.major
-
-    private fun isMinorUpdate(
-        currentVersion: ArtifactVersion,
-        candidateVersion: ArtifactVersion,
     ): Boolean {
-        if (currentVersion.minor == null || candidateVersion.minor == null) {
+        // 1. 現在のバージョン以下なら常に許可（Gradleが "could not be resolved" で落ちるのを防ぐため）
+        if (isOlderOrEqual(candidateVersion, currentVersion)) return true
+
+        // 2. メジャーアップデートのピン留めチェック
+        if (pinMajorVersion && candidateVersion.major > currentVersion.major) {
             return false
         }
-        return currentVersion.major == candidateVersion.major &&
-            currentVersion.minor < candidateVersion.minor
+
+        // 3. マイナーアップデートのピン留めチェック
+        if (pinMinorVersion && candidateVersion.major == currentVersion.major) {
+            val candidateMinor = candidateVersion.minor ?: 0
+            val currentMinor = currentVersion.minor ?: 0
+            if (candidateMinor > currentMinor) {
+                return false
+            }
+        }
+
+        // 制限に引っかからなかった新しいバージョンを許可
+        return true
     }
 
-    private fun isPatchUpdate(
-        currentVersion: ArtifactVersion,
-        candidateVersion: ArtifactVersion,
-    ): Boolean {
-        if (currentVersion.patch == null || candidateVersion.patch == null) {
-            return false
-        }
-        return currentVersion.major == candidateVersion.major &&
-            currentVersion.minor == candidateVersion.minor &&
-            comparePatchLists(currentVersion.patch, candidateVersion.patch) < 0
-    }
+    private fun isOlderOrEqual(candidate: ArtifactVersion, current: ArtifactVersion): Boolean {
+        // メジャーが違えば、小さい方が古い
+        if (candidate.major != current.major) return candidate.major < current.major
 
-    /**
-     * Compares two patch version lists element by element.
-     * Missing trailing elements are treated as 0.
-     * Returns negative if current < candidate, positive if current > candidate, 0 if equal.
-     */
-    private fun comparePatchLists(
-        current: List<Int>,
-        candidate: List<Int>,
-    ): Int {
-        val maxLen = maxOf(current.size, candidate.size)
-        for (i in 0 until maxLen) {
-            val diff = current.getOrElse(i) { 0 } - candidate.getOrElse(i) { 0 }
-            if (diff != 0) return diff
+        // メジャーが同じなら、マイナーを比較
+        val candMinor = candidate.minor ?: 0
+        val curMinor = current.minor ?: 0
+        if (candMinor != curMinor) return candMinor < curMinor
+
+        // マイナーも同じなら、パッチのListを先頭から順番に比較
+        val candPatch = candidate.patch ?: emptyList()
+        val curPatch = current.patch ?: emptyList()
+        val maxSize = maxOf(candPatch.size, curPatch.size)
+
+        for (i in 0 until maxSize) {
+            val c = candPatch.getOrElse(i) { 0 }
+            val cur = curPatch.getOrElse(i) { 0 }
+            if (c != cur) return c < cur
         }
-        return 0
+
+        // 全く同じバージョン
+        return true
     }
 }
