@@ -89,21 +89,74 @@ internal class VersionSelectorTest {
 
     @Test
     fun `select returns true when isSelectableVersion(candidate is stable version) and isUpdatableVersion(isValidCandidate is true)`() {
+        val stableCandidate =
+            ModuleVersionCandidate(
+                currentVersion = "1.0.0",
+                candidate =
+                    object : ModuleComponentIdentifier {
+                        override fun getGroup(): String = "com.example"
+
+                        override fun getModule(): String = "test-module"
+
+                        override fun getVersion(): String = "1.1.1"
+
+                        override fun getModuleIdentifier(): ModuleIdentifier = mockk()
+
+                        override fun getDisplayName(): String = "com.example:test-module:1.1.1"
+                    },
+            )
+
         every { extension.onlyStable.get() } returns true
-        every { extension.unStableVersionRegex.get() } returns Regex(".*(alpha|beta|rc).*")
-        every { versionParser.parse(candidate.currentVersion) } returns null
-        every { versionParser.parse(candidate.candidate.version) } returns candidateVersion
+        every { extension.unStableVersionRegex.get() } returns Regex(".*(alpha|beta|rc|test|-M\\d+).*", RegexOption.IGNORE_CASE)
+        every { versionParser.parse(stableCandidate.currentVersion) } returns currentVersion
+        every { versionParser.parse(stableCandidate.candidate.version) } returns candidateVersion
         every { extension.onlyArtifactVersion.get() } returns false
 
-        val actual = versionSelector.select(candidate)
+        every {
+            candidateValidator.isValidCandidate(
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } returns true
+
+        val actual = versionSelector.select(stableCandidate)
 
         assertTrue(actual)
     }
 
     @Test
+    fun `select returns false when isSelectableVersion is false(onlyStable is true and candidate is milestone version)`() {
+        every { extension.onlyStable.get() } returns true
+        every { extension.unStableVersionRegex.get() } returns Regex(".*(alpha|beta|rc|test|-M\\d+).*", RegexOption.IGNORE_CASE)
+
+        val milestoneCandidate =
+            ModuleVersionCandidate(
+                currentVersion = "1.0.0",
+                candidate =
+                    object : ModuleComponentIdentifier {
+                        override fun getGroup(): String = "com.example"
+
+                        override fun getModule(): String = "test-module"
+
+                        override fun getVersion(): String = "1.1.0-M4"
+
+                        override fun getModuleIdentifier(): ModuleIdentifier = mockk()
+
+                        override fun getDisplayName(): String = "com.example:test-module:1.1.0-M4"
+                    },
+            )
+
+        val actual = versionSelector.select(milestoneCandidate)
+
+        assertFalse(actual)
+    }
+
+    @Test
     fun `select returns false when isSelectableVersion is false(onlyStable is true and candidate isn't stable version)`() {
         every { extension.onlyStable.get() } returns true
-        every { extension.unStableVersionRegex.get() } returns Regex(".*(alpha|beta|rc|test).*")
+        every { extension.unStableVersionRegex.get() } returns Regex(".*(alpha|beta|rc|test|-M\\d+).*", RegexOption.IGNORE_CASE)
 
         val actual = versionSelector.select(candidate)
 
@@ -125,7 +178,7 @@ internal class VersionSelectorTest {
     @Test
     fun `select returns false when isUpdatableVersion is false(isValidCandidate is false)`() {
         every { extension.onlyStable.get() } returns true
-        every { extension.unStableVersionRegex.get() } returns Regex(".*(alpha|beta|rc).*")
+        every { extension.unStableVersionRegex.get() } returns Regex(".*(alpha|beta|rc|test|-M\\d+).*", RegexOption.IGNORE_CASE)
         every { versionParser.parse(candidate.currentVersion) } returns currentVersion
         every { versionParser.parse(candidate.candidate.version) } returns candidateVersion
         every {

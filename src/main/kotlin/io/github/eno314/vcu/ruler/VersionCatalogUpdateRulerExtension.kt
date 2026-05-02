@@ -57,7 +57,7 @@ abstract class VersionCatalogUpdateRulerExtension
     ) : UpdateRule {
         internal val defaultUnStableVersionRegex =
             Regex(
-                ".*(alpha|beta|rc|preview|snapshot|test).*",
+                ".*(alpha|beta|rc|preview|snapshot|test|-M\\d+).*",
                 RegexOption.IGNORE_CASE,
             )
 
