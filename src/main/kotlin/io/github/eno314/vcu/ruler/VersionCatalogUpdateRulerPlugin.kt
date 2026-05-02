@@ -19,7 +19,7 @@ class VersionCatalogUpdateRulerPlugin : Plugin<Project> {
                 VersionSelector(
                     extension,
                     VersionParser(),
-                    VersionUpdateRuler(),
+                    VersionCandidateValidator(),
                     project.logger,
                 ),
             )

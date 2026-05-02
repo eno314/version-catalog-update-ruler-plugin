@@ -7,7 +7,7 @@ import org.gradle.api.logging.Logger
 internal class VersionSelector(
     private val extension: VersionCatalogUpdateRulerExtension,
     private val versionParser: VersionParser,
-    private val versionUpdateRuler: VersionUpdateRuler,
+    private val candidateValidator: VersionCandidateValidator,
     private val logger: Logger,
 ) : ModuleVersionSelector {
     private val tag = "[VersionCatalogUpdateRulerPlugin]"
@@ -65,7 +65,7 @@ internal class VersionSelector(
             return !onlyArtifactVersion
         }
 
-        return versionUpdateRuler.shouldUpdate(
+        return candidateValidator.isValidCandidate(
             currentVersion,
             candidateVersion,
             rule.pinMajorVersion.get(),
