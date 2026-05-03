@@ -56,3 +56,14 @@ jobs:
 
       - name: Generate and submit dependency graph
         uses: gradle/actions/dependency-submission@v4
+
+  scan-pr:
+    permissions:
+      security-events: write
+      contents: read
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@2"
+    with:
+      scan-args: |-
+        -r
+        --skip-git
+        ./
