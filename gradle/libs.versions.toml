@@ -1,9 +1,9 @@
 [versions]
-detekt = "2.0.0-alpha.2"
-junit = "6.0.3"
-kotlin = "2.3.0"
+detekt = "2.0.0-alpha.5"
+junit = "6.1.0"
+kotlin = "2.4.0"
 ktlint = "14.2.0"
-mockk = "1.14.9"
+mockk = "1.14.11"
 version-catalog-update = "1.1.0"
 gradle-plugin-publish = "2.1.1"
 
